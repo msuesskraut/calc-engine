@@ -1,7 +1,9 @@
 num = @{ int ~ ("." ~ ASCII_DIGIT*)? ~ (^"e" ~ int)? }
     int = { ("+" | "-")? ~ ASCII_DIGIT+ }
 
-cell_ref = @{ ASCII_ALPHA+ ~ ASCII_DIGIT+ }
+cell_ref_col = @{ ASCII_ALPHA+ }
+cell_ref_row = @{ ASCII_DIGIT+ }
+cell_ref = { cell_ref_col ~ cell_ref_row }
 
 operation = _{ add | subtract | multiply | divide | power }
     add      = { "+" }
