@@ -1,0 +1,19 @@
+num = @{ int ~ ("." ~ ASCII_DIGIT*)? ~ (^"e" ~ int)? }
+    int = { ("+" | "-")? ~ ASCII_DIGIT+ }
+
+cell_ref = @{ ASCII_ALPHA+ ~ ASCII_DIGIT+ }
+
+operation = _{ add | subtract | multiply | divide | power }
+    add      = { "+" }
+    subtract = { "-" }
+    multiply = { "*" }
+    divide   = { "/" }
+    rem      = { "%" }
+    power    = { "^" }
+
+expr = { term ~ (operation ~ term)* }
+term = _{ num | cell_ref | "(" ~ expr ~ ")" }
+
+formular = _{ SOI ~ expr ~ EOI }
+
+WHITESPACE = _{ " " | "\t" }

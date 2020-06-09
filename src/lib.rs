@@ -1,4 +1,5 @@
 mod cells;
+mod formular;
 mod table;
 
 pub use crate::cells::{Cell, CellRef, Value};

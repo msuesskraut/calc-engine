@@ -20,7 +20,7 @@ impl Cell {
     }
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, Default)]
+#[derive(Debug, Hash, PartialEq, Eq, Default, Clone, Copy)]
 pub struct CellRef {
     pub r: usize,
     pub c: usize,
