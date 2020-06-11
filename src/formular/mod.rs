@@ -1,14 +1,25 @@
 mod ast;
 mod parser;
 
-use crate::formular::ast::{CellRef, Expr, Value};
-use crate::formular::parser::{build_expr, FormularError, FormularParser, Rule};
+use crate::formular::ast::{CellRef, CellValueCalculator, Expr, Value};
+use crate::formular::parser::{build_expr, FormularParser, Rule};
 
+use pest::error::Error;
 use pest::Parser;
+
+use std::collections::HashSet;
+
+#[derive(Debug, PartialEq)]
+pub enum FormularError {
+    FormularParserError(Error<Rule>),
+    CellRefParserError(String),
+    ValueParserError(String),
+    EvalCycleError,
+}
 
 #[derive(Clone, Debug)]
 pub struct Formular {
-    deps: Vec<CellRef>,
+    deps: HashSet<CellRef>,
     expr: Box<Expr>,
 }
 
@@ -17,18 +28,23 @@ impl Formular {
         let ast =
             FormularParser::parse(Rule::formular, s).map_err(FormularError::FormularParserError)?;
         let expr = build_expr(ast)?;
-        let deps = Vec::new();
+        let deps = expr.calc_deps();
         Ok(Formular { expr, deps })
     }
 
-    pub fn eval(&self) -> Value {
-        self.expr.eval()
+    pub fn eval(
+        &self,
+        cell_value_calculator: &impl CellValueCalculator,
+    ) -> Result<Value, FormularError> {
+        self.expr.eval(cell_value_calculator)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    use crate::formular::ast::CellValueCache;
 
     #[test]
     fn parse_formular() {
@@ -43,6 +59,9 @@ mod tests {
     #[test]
     fn form_eval() {
         let form = Formular::new("1 + 2 * 3 - 2 ^ (3 - 2)").unwrap();
-        assert_eq!(Value::Double(5.0), form.eval());
+        assert_eq!(
+            Value::Double(5.0),
+            form.eval(&CellValueCache::new()).unwrap()
+        );
     }
 }

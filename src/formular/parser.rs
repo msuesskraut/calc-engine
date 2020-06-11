@@ -1,8 +1,8 @@
 use crate::cells::{CellRef, Value};
 use crate::formular::ast::{Expr, Op};
+use crate::formular::FormularError;
 
 use lazy_static::lazy_static;
-use pest::error::Error;
 use pest::iterators::{Pair, Pairs};
 use pest::prec_climber::{Assoc, Operator, PrecClimber};
 use pest_derive::Parser;
@@ -10,13 +10,6 @@ use pest_derive::Parser;
 #[derive(Parser)]
 #[grammar = "formular/formular.pest"]
 pub struct FormularParser;
-
-#[derive(Debug, PartialEq)]
-pub enum FormularError {
-    FormularParserError(Error<Rule>),
-    CellRefParserError(String),
-    ValueParserError(String),
-}
 
 fn parse_cell_ref_col(s: &str) -> Result<usize, FormularError> {
     s.chars().fold(Ok(0usize), |col, c| {
